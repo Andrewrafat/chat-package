@@ -1,0 +1,25 @@
+{
+    "name": "andrew/laravel-chat-package",
+    "description": "Developer-first real-time chat package for Laravel & mobile APIs",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.3",
+        "illuminate/support": "^8|^9|^10|^11"
+    },
+    "autoload": {
+        "psr-4": {
+            "Andrew\\ChatPackage\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Andrew\\ChatPackage\\ChatServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+        
