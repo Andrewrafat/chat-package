@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "630ccb5bce3713f6470612416d09e13e",
+    "content-hash": "4390ada5473b30a13d7484080cca38eb",
     "packages": [
         {
             "name": "andrew/laravel-chat-package",
-            "version": "dev-main",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "packages/andrew/laravel-chat-package",
@@ -7817,9 +7817,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "andrew/laravel-chat-package": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -24,6 +24,13 @@ return [
     'tables' => [
         'conversations' => 'chat_conversations',
         'messages'      => 'chat_messages',
+        'participants'  => 'chat_participants',
+
+        'message_reads' => 'chat_message_reads',
+
+        'message_stars' => 'chat_message_stars',
+
+
     ],
 
     /*
@@ -31,7 +38,7 @@ return [
     | Broadcasting
     |--------------------------------------------------------------------------
     */
-   'broadcast' => [
+    'broadcast' => [
 
         'enabled' => true,
 

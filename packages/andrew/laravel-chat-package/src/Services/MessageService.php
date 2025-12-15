@@ -11,7 +11,7 @@ class MessageService
     public function send(string $chatKey, int $userId, string $content): array
     {
         $conversation = Conversation::where('chat_key', $chatKey)
-            ->whereHas('participants', fn ($q) => $q->where('user_id', $userId))
+            ->whereHas('participants', fn($q) => $q->where('user_id', $userId))
             ->firstOrFail();
 
         $message = Message::create([
@@ -37,5 +37,21 @@ class MessageService
         ));
 
         return $payload;
+    }
+
+
+
+    public function star(int $messageId, int $userId): void
+    {
+        $message = Message::findOrFail($messageId);
+
+        $message->stars()->syncWithoutDetaching([$userId]);
+    }
+
+    public function unstar(int $messageId, int $userId): void
+    {
+        $message = Message::findOrFail($messageId);
+
+        $message->stars()->detach($userId);
     }
 }

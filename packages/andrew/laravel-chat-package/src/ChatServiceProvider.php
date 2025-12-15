@@ -14,6 +14,9 @@ use Andrew\ChatPackage\Services\ConversationInviteService;
 use Andrew\ChatPackage\Services\ConversationLeaveService;
 use Andrew\ChatPackage\Services\ConversationReadService;
 use Andrew\ChatPackage\Services\ConversationTypingService;
+use Andrew\ChatPackage\Services\StarMessageService;
+use Illuminate\Support\Facades\Route;
+use Andrew\ChatPackage\Models\Message;
 
 class ChatServiceProvider extends ServiceProvider
 {
@@ -32,10 +35,17 @@ class ChatServiceProvider extends ServiceProvider
         $this->app->singleton(ConversationLeaveService::class);
         $this->app->singleton(ConversationReadService::class);
         $this->app->singleton(ConversationTypingService::class);
+        $this->app->singleton(StarMessageService::class);
     }
 
     public function boot()
     {
+        // ✅ REGISTER MODEL BINDING FIRST
+        \Illuminate\Support\Facades\Route::model(
+            'message',
+            \Andrew\ChatPackage\Models\Message::class
+        );
+
         // Publish config
         $this->publishes([
             __DIR__ . '/../config/chat.php' => config_path('chat.php'),
@@ -44,7 +54,7 @@ class ChatServiceProvider extends ServiceProvider
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-        // Load routes
+        // Load routes (AFTER binding)
         $this->loadRoutesFrom(__DIR__ . '/Routes/api.php');
 
         // Broadcast channels
@@ -60,8 +70,10 @@ class ChatServiceProvider extends ServiceProvider
 
         // Conversation stream (messages, typing, membership)
         Broadcast::channel('chat.{chatKey}', function ($user, $chatKey) {
-            return Conversation::where('chat_key', $chatKey)
-                ->whereHas('participants', fn ($q) => $q->where('user_id', $user->id))
+
+            return Conversation::withoutGlobalScopes()
+                ->where('chat_key', $chatKey)
+                ->whereHas('participants', fn($q) => $q->where('user_id', $user->id))
                 ->exists();
         });
     }
