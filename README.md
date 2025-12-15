@@ -1,182 +1,66 @@
-# Laravel Chat Package
-
-A **developer-first, API-based chat package** for Laravel.  
-Supports **one-to-one chats**, **group chats**, **user invitations**, and is fully **SaaS & mobile-ready**.
-
-> No UI. No assumptions. Just a clean chat engine.
-
----
-
-## ✨ Features
-
--   ✅ One-to-One Conversations
--   ✅ Group Chats
--   ✅ Invite & Remove Users
--   ✅ Leave Conversation
--   ✅ Role-based Participants (admin / member)
--   ✅ API-first (perfect for mobile apps)
--   ✅ Sanctum authentication
--   ✅ Configurable table names
--   ✅ Package-safe (no dependency on User model)
-
----
-
-## 📦 Installation
-
-### 1️⃣ Require the package
-
-```bash
+Laravel Chat Package is a lightweight, API-first chat engine for Laravel.
+Build private or group chats, send messages, track unread counts, and integrate realtime — without any UI or frontend assumptions.
+⚡ Quick Start (5 Minutes)
+1️⃣ Install
 composer require andrew/laravel-chat-package:dev-main
-2️⃣ Publish configuration
-bash
-Copy code
+
+2️⃣ Publish config & migrate
 php artisan vendor:publish --tag=chat-config
-This will create:
-
-arduino
-Copy code
-config/chat.php
-3️⃣ Run migrations
-bash
-Copy code
 php artisan migrate
-Tables created:
 
-chat_conversations
+3️⃣ Authenticate (Sanctum)
 
-chat_messages
+All endpoints require:
 
-chat_participants
-
-🔐 Authentication
-This package uses Laravel Sanctum.
-
-Make sure Sanctum is installed and configured.
-
-All requests must include:
-
-makefile
-Copy code
 Authorization: Bearer YOUR_TOKEN
-Accept: application/json
-🚀 API Routes
-All routes are prefixed automatically (no /api prefix required).
 
-🟢 Create Conversation (One-to-One or Group)
+🚀 Basic Usage
+Create a conversation
 POST /chat/conversations
 
-Request (One-to-One)
-json
-Copy code
 {
-  "participants": [2]
+  "participants": [2, 3]
 }
-Request (Group)
-json
-Copy code
-{
-  "type": "group",
-  "title": "Backend Team",
-  "participants": [2, 3, 4]
-}
-Behavior
-Creator is added as admin
 
-Invited users are added as member
-
-🟢 Send Message
+Send a message
 POST /chat/messages
 
-json
-Copy code
 {
-  "conversation_id": 1,
-  "content": "Hello from chat package"
+  "chat_key": "c_xxxxx",
+  "content": "Hello 👋"
 }
-🟢 List Messages in a Conversation
-GET /chat/conversations/{id}/messages
 
-🟢 Invite User to Conversation
-POST /chat/conversations/{id}/invite
+List conversations
+GET /chat/conversations
 
-json
-Copy code
-{
-  "user_id": 5
-}
-⚠️ Only admins can invite users.
 
-🟢 Leave Conversation
-POST /chat/conversations/{id}/leave
+Returns:
 
-Removes the authenticated user from the conversation
+last message
 
-Admins can leave (future logic can reassign admin)
+unread count
 
-🧠 Concepts
-Conversations
-Represents a chat room:
+participants count
 
-private (one-to-one)
+Star a message
+POST /chat/messages/{message_id}/star
 
-group
+🎯 When to Use This Package
 
-Participants
-Each user in a conversation:
+✅ Mobile apps (Flutter / React Native)
+✅ SPA frontends (React / Vue / Next.js)
+✅ SaaS dashboards
+✅ Internal tools
+❌ Not opinionated UI chats
 
-role: admin or member
+🧩 Why Developers Love It
 
-joined_at timestamp
+No UI coupling
 
-Messages
-Each message belongs to:
+No forced User model
 
-a conversation
+Clean service architecture
 
-a sender (auth user)
+Works with or without realtime
 
-⚙️ Configuration
-config/chat.php
-
-php
-Copy code
-return [
-
-    'auth_guard' => 'sanctum',
-
-    'tables' => [
-        'conversations' => 'chat_conversations',
-        'messages'      => 'chat_messages',
-        'participants'  => 'chat_participants',
-    ],
-
-];
-🧩 Design Philosophy
-❌ No UI
-
-❌ No forced User model
-
-❌ No assumptions
-
-✅ API-first
-
-✅ Mobile-ready
-
-✅ SaaS-friendly
-
-✅ Extensible
-
-🛣️ Roadmap
-🔜 Real-time events (MessageSent)
-
-🔜 Typing indicators
-
-🔜 Read receipts
-
-🔜 Attachments
-
-🔜 Admin reassignment
-
-🔜 Facade API (Chat::send())
-
-```
+Easy to extend (mute, pin, archive)
