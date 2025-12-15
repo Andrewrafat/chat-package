@@ -4,6 +4,7 @@ namespace Andrew\ChatPackage\Services;
 
 use Andrew\ChatPackage\Models\Conversation;
 use Andrew\ChatPackage\Events\UserTyping;
+use Andrew\ChatPackage\Support\Broadcast;
 
 class ConversationTypingService
 {
@@ -13,11 +14,14 @@ class ConversationTypingService
             ->whereHas('participants', fn ($q) => $q->where('user_id', $userId))
             ->firstOrFail();
 
-        event(new UserTyping(
-            chatKey: $conversation->chat_key,
-            user: [
-                'id' => $userId,
-            ]
-        ));
+        // ✅ Optional realtime (driver-agnostic)
+        Broadcast::dispatch(
+            new UserTyping(
+                chatKey: $conversation->chat_key,
+                user: [
+                    'id' => $userId,
+                ]
+            )
+        );
     }
 }

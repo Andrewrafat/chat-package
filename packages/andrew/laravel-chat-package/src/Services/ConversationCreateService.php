@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Andrew\ChatPackage\Models\Conversation;
 use Andrew\ChatPackage\Models\Participant;
 use Andrew\ChatPackage\Events\ConversationCreated;
+use Andrew\ChatPackage\Support\Broadcast;
 
 class ConversationCreateService
 {
@@ -52,11 +53,14 @@ class ConversationCreateService
                 'created_at'         => $conversation->created_at->toISOString(),
             ];
 
+            // ✅ Optional realtime notification
             foreach ($allParticipants as $userId) {
-                event(new ConversationCreated(
-                    receiverId: $userId,
-                    conversation: $conversationDto
-                ));
+                Broadcast::dispatch(
+                    new ConversationCreated(
+                        receiverId: $userId,
+                        conversation: $conversationDto
+                    )
+                );
             }
 
             return $conversationDto;

@@ -5,6 +5,7 @@ namespace Andrew\ChatPackage\Services;
 use Andrew\ChatPackage\Models\Conversation;
 use Andrew\ChatPackage\Models\Participant;
 use Andrew\ChatPackage\Events\ConversationLeft;
+use Andrew\ChatPackage\Support\Broadcast;
 
 class ConversationLeaveService
 {
@@ -22,7 +23,11 @@ class ConversationLeaveService
                 ->where('role', 'admin')
                 ->count();
 
-            abort_if($adminsCount <= 1, 403, 'Admin cannot leave without assigning another admin.');
+            abort_if(
+                $adminsCount <= 1,
+                403,
+                'Admin cannot leave without assigning another admin.'
+            );
         }
 
         $participant->delete();
@@ -32,11 +37,13 @@ class ConversationLeaveService
             'name' => optional($participant->user)->name,
         ];
 
-        // 🔥 EVENT IS THE GOAL
-        event(new ConversationLeft(
-            chatKey: $conversation->chat_key,
-            user: $userPayload
-        ));
+        // ✅ Optional realtime event
+        Broadcast::dispatch(
+            new ConversationLeft(
+                chatKey: $conversation->chat_key,
+                user: $userPayload
+            )
+        );
 
         return [
             'chat_key' => $conversation->chat_key,

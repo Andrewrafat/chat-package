@@ -5,18 +5,19 @@ namespace Andrew\ChatPackage\Services;
 use Andrew\ChatPackage\Models\Conversation;
 use Andrew\ChatPackage\Models\Message;
 use Andrew\ChatPackage\Events\MessageSent;
+use Andrew\ChatPackage\Support\Broadcast;
 
 class MessageService
 {
     public function send(string $chatKey, int $userId, string $content): array
     {
         $conversation = Conversation::where('chat_key', $chatKey)
-            ->whereHas('participants', fn($q) => $q->where('user_id', $userId))
+            ->whereHas('participants', fn ($q) => $q->where('user_id', $userId))
             ->firstOrFail();
 
         $message = Message::create([
             'conversation_id' => $conversation->id,
-            'sender_id'         => $userId,
+            'sender_id'       => $userId,
             'content'         => $content,
         ]);
 
@@ -30,28 +31,30 @@ class MessageService
             'created_at' => $message->created_at->toISOString(),
         ];
 
-        // 🔥 EVENT IS THE PRODUCT
-        event(new MessageSent(
-            chatKey: $conversation->chat_key,
-            message: $payload
-        ));
+        // ✅ Optional realtime (driver-agnostic)
+        Broadcast::dispatch(
+            new MessageSent(
+                chatKey: $conversation->chat_key,
+                message: $payload
+            )
+        );
 
         return $payload;
     }
 
-
-
     public function star(int $messageId, int $userId): void
     {
-        $message = Message::findOrFail($messageId);
-
-        $message->stars()->syncWithoutDetaching([$userId]);
+        Message::query()
+            ->findOrFail($messageId)
+            ->stars()
+            ->syncWithoutDetaching([$userId]);
     }
 
     public function unstar(int $messageId, int $userId): void
     {
-        $message = Message::findOrFail($messageId);
-
-        $message->stars()->detach($userId);
+        Message::query()
+            ->findOrFail($messageId)
+            ->stars()
+            ->detach($userId);
     }
 }
