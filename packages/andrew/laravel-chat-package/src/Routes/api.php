@@ -8,6 +8,7 @@ use Andrew\ChatPackage\Http\Controllers\ConversationListController;
 use Andrew\ChatPackage\Http\Controllers\MessageController;
 use Andrew\ChatPackage\Http\Controllers\ConversationTypingController;
 use Andrew\ChatPackage\Http\Controllers\ConversationReadController;
+use Andrew\ChatPackage\Http\Controllers\MessageStarController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
@@ -67,4 +68,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
   // Send message
   Route::post('/chat/messages', [MessageController::class, 'store']);
+
+
+
+
+
+
+
+  /*
+|--------------------------------------------------------------------------
+| Message Stars
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/chat/messages/{message}/star', [MessageStarController::class, 'store']);
+Route::delete('/chat/messages/{message}/star', [MessageStarController::class, 'destroy']);
+
+// List starred messages (optional: filter by chat_key)
+Route::get(
+    '/chat/messages/starred',
+    [\Andrew\ChatPackage\Http\Controllers\MessageStarController::class, 'index']
+);
 });

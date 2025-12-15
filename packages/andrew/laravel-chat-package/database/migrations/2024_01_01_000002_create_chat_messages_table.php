@@ -17,7 +17,7 @@ class CreateChatMessagesTable extends Migration
                 /**
                  * Conversation reference
                  */
-                $table->unsignedBigInteger('conversation_id')->index();
+                $table->unsignedBigInteger('conversation_id')->index()->nullable(false);
 
                 /**
                  * Sender (do NOT foreign-key users table)
