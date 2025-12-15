@@ -1,9 +1,11 @@
 <?php
+
 namespace Andrew\ChatPackage\Services;
 
 use Andrew\ChatPackage\Models\Conversation;
 use Andrew\ChatPackage\Models\Participant;
 use Andrew\ChatPackage\Events\ConversationInvited;
+use Andrew\ChatPackage\Support\Broadcast;
 
 class ConversationInviteService
 {
@@ -44,12 +46,14 @@ class ConversationInviteService
             'id' => $inviterId,
         ];
 
-        // 🔥 EVENT IS THE GOAL
-        event(new ConversationInvited(
-            chatKey: $conversation->chat_key,
-            invitedUser: $invitedUserPayload,
-            invitedBy: $invitedByPayload
-        ));
+        // ✅ Optional realtime event
+        Broadcast::dispatch(
+            new ConversationInvited(
+                chatKey: $conversation->chat_key,
+                invitedUser: $invitedUserPayload,
+                invitedBy: $invitedByPayload
+            )
+        );
 
         return [
             'chat_key'     => $conversation->chat_key,
