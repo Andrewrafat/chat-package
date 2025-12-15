@@ -40,4 +40,11 @@ class Conversation extends Model
             })
             ->count();
     }
+
+     public function lastMessage()
+    {
+        return $this->hasOne(Message::class, 'conversation_id')
+            ->latest('created_at');
+    }
+
 }

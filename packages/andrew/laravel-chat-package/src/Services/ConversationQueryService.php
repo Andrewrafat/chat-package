@@ -16,8 +16,8 @@ class ConversationQueryService
             ->with(['lastMessage'])
             ->orderByDesc(
                 Conversation::select('created_at')
-                    ->from('messages')
-                    ->whereColumn('messages.conversation_id', 'conversations.id')
+                    ->from('chat_messages')
+                    ->whereColumn('chat_messages.conversation_id', 'chat_conversations.id')
                     ->latest()
                     ->limit(1)
             )

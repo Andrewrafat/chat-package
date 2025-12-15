@@ -14,7 +14,7 @@ class Message extends Model
 
     public function __construct(array $attributes = [])
     {
-        $this->table = config('chat.tables.messages');
+        $this->table = config('chat.tables.messages' , 'chat_messages');
         parent::__construct($attributes);
     }
 
