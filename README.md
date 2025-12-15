@@ -1,8 +1,10 @@
 Laravel Chat Package is a lightweight, API-first chat engine for Laravel.
-Build private or group chats, send messages, track unread counts, and integrate realtime — without any UI or frontend assumptions.
-⚡ Quick Start (5 Minutes)
-1️⃣ Install
-composer require andrew/laravel-chat-package:dev-main
+Build private or group chats, send messages, track unread counts, and integrate realtime — without any UI or frontend assumptions.⚡ Quick Start (5 Minutes)
+
+
+1️⃣ Install composer
+
+require andrew/laravel-chat-package:dev-main
 
 2️⃣ Publish config & migrate
 php artisan vendor:publish --tag=chat-config
