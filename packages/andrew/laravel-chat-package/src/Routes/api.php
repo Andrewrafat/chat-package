@@ -20,6 +20,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
   // Create conversation (private / group)
   Route::post('/chat/conversations', [ConversationController::class, 'store']);
+  Route::get('/chat/conversations', [ConversationController::class, 'index']);
 
   // List user conversations
   Route::get('/chat/conversations', [ConversationListController::class, 'index']);
