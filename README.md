@@ -235,17 +235,21 @@ Or disable realtime completely
 ✅ Event-driven
 ✅ Extendable
 ✅ Production-ready
+---------------------------------------------------------------------------------------------------------------------------------------------------
+                                    🆚 Comparison
 
-🆚 Comparison
-Feature	This Package	Typical Chat Packages
-Realtime optional	✅	❌ forced
-Mobile-first	✅	❌
-No UI	✅	❌
-Extensible	✅	⚠️
-Laravel-native	✅	⚠️
+Feature	This Package	                             Typical Chat Packages
+Realtime optional	    ✅	                             ❌ forced
+Mobile-first	        ✅	                             ❌
+No UI	                ✅	                             ❌
+Extensible	            ✅	                             ⚠️
+Laravel-native	        ✅	                             ⚠️
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
 🛣️ Roadmap
 
-⏳ Attachments
+✅ Attachments
 
 ⏳ Message reactions
 
