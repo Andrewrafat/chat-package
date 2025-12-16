@@ -14,19 +14,26 @@ class MessageController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ Validation (text OR attachments)
         $data = $request->validate([
-            'chat_key' => 'required|string',
-            'content'  => 'required|string',
+            'chat_key'        => 'required|string',
+            'content'         => 'nullable|string',
+            'attachments'     => 'nullable|array',
+            'attachments.*'   => 'file|max:10240', // 10MB per file
         ]);
 
+        // 📎 Get uploaded files safely
+        $attachments = $request->file('attachments', []);
+         // 📨 Send message via service
         $message = $this->messageService->send(
             chatKey: $data['chat_key'],
-            userId: auth()->id(),
-            content: $data['content']
+            userId: (int) $request->user()->id,
+            content: $data['content'] ?? null,
+            attachments: $attachments
         );
 
         return response()->json([
-            'data' => $message
-        ]);
+            'data' => $message,
+        ], 201);
     }
 }
