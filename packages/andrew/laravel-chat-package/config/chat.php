@@ -27,6 +27,7 @@ return [
         'participants'  => 'chat_participants',
         'message_reads' => 'chat_message_reads',
         'message_stars' => 'chat_message_stars',
+        'message_attachments' =>'chat_message_attachments'
     ],
 
     /*
