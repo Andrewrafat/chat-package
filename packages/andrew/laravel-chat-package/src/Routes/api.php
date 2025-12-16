@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/chat/conversations', [ConversationController::class, 'index']);
 
   // List user conversations
-  Route::get('/chat/conversations', [ConversationListController::class, 'index']);
+  Route::get('/chat/users', [ConversationListController::class, 'index']);
 
   // Invite user (admin only)
   Route::post(
