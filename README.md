@@ -1,53 +1,33 @@
-🚀 Laravel Chat Package
+Laravel Chat Package
 
-A headless, API-first chat engine for Laravel.
-Built for SaaS platforms, mobile apps, and modern frontends.
+A developer-first, headless real-time chat engine for Laravel.
+Built for APIs, mobile apps, SaaS platforms, and modern frontends.
 
-❌ No UI
-❌ No assumptions
-✅ Just conversations, messages, and realtime events.
+No UI. No opinions. No lock-in.
+Just a clean, extensible chat core.
 
-✨ Why this package?
+✨ Why This Package?
 
-Most Laravel chat packages:
+Most chat packages:
 
-force a UI
+force UI
 
-force Livewire / Blade
+assume frontend stack
 
-force a User model
+lock you to Pusher
 
-lock you into one realtime solution
+are hard to customize
 
-This package does none of that.
+This package is different.
 
-Laravel Chat Package gives you:
+✔ API-first
+✔ Transport-agnostic (Pusher, WebSocket, Redis, or none)
+✔ Mobile-ready
+✔ SaaS-friendly
+✔ Zero assumptions
 
-a clean chat core
-
-event-driven architecture
-
-full control over frontend & realtime layer
-
-🧠 Who is this for?
-
-This package is perfect if you are building:
-
-📱 Mobile apps (Flutter / React Native)
-
-🧩 SaaS dashboards
-
-🛒 Marketplaces (buyer ↔ seller chat)
-
-🎧 Customer support systems
-
-🧑‍💻 Internal team chat tools
-
-🤖 AI / bot-powered chat workflows
-
-If you need full control, this package is for you.
-
-🔥 Core Features
+🚀 Features
+Core
 
 ✅ One-to-One Conversations
 
@@ -55,36 +35,39 @@ If you need full control, this package is for you.
 
 ✅ Role-based Participants (admin / member)
 
-✅ Invite & Remove Users
+✅ Invite users to conversations
 
-✅ Leave Conversation
+✅ Leave conversations safely
 
-✅ Message Read Receipts
+✅ Secure authorization (participants only)
 
-✅ Message Star / Bookmark
+Messaging
 
-✅ Typing Indicators
+✅ Send messages
 
-✅ Realtime Events (driver-agnostic)
+✅ Read receipts
 
-✅ API-first (mobile friendly)
+✅ Star / unstar messages
 
-✅ Configurable table names
+✅ List starred messages
 
-✅ Zero dependency on User model
+✅ Last message relation (for inbox)
 
-🏗 Design Philosophy
-Principle	Description
-Headless	No frontend, no Blade, no Livewire
-API-first	Built for REST & mobile
-Event-driven	Events are the product
-Zero opinion	You choose auth, UI, realtime
-Extensible	Easy to add AI, bots, analytics
+Realtime (Optional)
+
+✅ MessageSent event
+
+✅ Typing indicator
+
+✅ Conversation updates
+
+✅ Pluggable realtime driver
+
 📦 Installation
 1️⃣ Install via Composer
 composer require andrew/laravel-chat-package
 
-2️⃣ Publish configuration
+2️⃣ Publish config
 php artisan vendor:publish --tag=chat-config
 
 
@@ -110,34 +93,68 @@ chat_message_stars
 
 🔐 Authentication
 
-The package is auth-agnostic, but works perfectly with Laravel Sanctum.
+This package is auth-guard aware.
 
-All requests must include:
+By default it uses Sanctum:
 
 Authorization: Bearer YOUR_TOKEN
 Accept: application/json
 
-🚀 API Overview
+
+You can change the guard in config/chat.php.
+
+⚙️ Configuration
+return [
+
+    'user_model' => App\Models\User::class,
+
+    'auth_guard' => 'api',
+
+    'tables' => [
+        'conversations' => 'chat_conversations',
+        'messages'      => 'chat_messages',
+        'participants'  => 'chat_participants',
+        'message_reads' => 'chat_message_reads',
+        'message_stars' => 'chat_message_stars',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Realtime Broadcasting
+    |--------------------------------------------------------------------------
+    |
+    | This package is transport-agnostic.
+    | Uses Laravel events & broadcasting.
+    |
+    */
+    'broadcasting' => [
+        'enabled' => true,
+    ],
+];
+
+🔌 API Usage
 Create Conversation
+
+One-to-One
 
 POST /chat/conversations
 
 {
-  "participants": [2, 3]
+  "participants": [2]
 }
 
 
-Group conversation:
+Group
 
 {
   "type": "group",
   "title": "Backend Team",
-  "participants": [2, 3, 4]
+  "participants": [2,3,4]
 }
 
-List User Conversations
-
+List Conversations (Inbox)
 GET /chat/conversations
+
 
 Returns:
 
@@ -148,62 +165,57 @@ last message
 participants count
 
 Send Message
-
 POST /chat/messages
 
 {
-  "conversation_id": 1,
-  "content": "Hello from chat package"
+  "chat_key": "c_xxx",
+  "content": "Hello 👋"
 }
 
+Typing Indicator
+POST /chat/conversations/{chat_key}/typing
+
 Mark Conversation as Read
+POST /chat/conversations/{chat_key}/read
 
-POST /chat/conversations/{chatKey}/read
+Star / Unstar Message
+POST   /chat/messages/{id}/star
+DELETE /chat/messages/{id}/star
 
-Invite User (Admins only)
+List Starred Messages
+GET /chat/messages/starred
 
-POST /chat/conversations/{chatKey}/invite
+Invite User (Admin Only)
+POST /chat/conversations/{chat_key}/invite
 
 {
   "user_id": 5
 }
 
 Leave Conversation
+POST /chat/conversations/{chat_key}/leave
 
-POST /chat/conversations/{chatKey}/leave
+📡 Realtime Events
 
-Star / Unstar Message
+All realtime features are optional.
 
-POST /chat/messages/{messageId}/star
-DELETE /chat/messages/{messageId}/star
+Events emitted:
 
-List Starred Messages
+message.sent
 
-GET /chat/messages/starred
+message.star.toggled
 
-⚡ Realtime & Events
+conversation.created
 
-This package is event-driven.
+conversation.updated
 
-Every important action fires an event:
+conversation.invited
 
-ConversationCreated
+conversation.left
 
-ConversationInvited
+user.typing
 
-ConversationLeft
-
-ConversationUpdated
-
-MessageSent
-
-MessageStarToggled
-
-UserTyping
-
-🔁 Realtime is optional
-
-You can use:
+You choose:
 
 Pusher
 
@@ -211,72 +223,41 @@ Laravel WebSockets
 
 Redis
 
-Or disable broadcasting entirely
+Or disable realtime completely
 
-You decide. The package never forces a driver.
+🧠 Design Philosophy
 
-⚙️ Configuration
-return [
+❌ No UI
+❌ No frontend assumptions
+❌ No forced websocket provider
 
-    'auth_guard' => 'api',
+✅ API-first
+✅ Event-driven
+✅ Extendable
+✅ Production-ready
 
-    'tables' => [
-        'conversations'  => 'chat_conversations',
-        'messages'       => 'chat_messages',
-        'participants'   => 'chat_participants',
-        'message_reads'  => 'chat_message_reads',
-        'message_stars'  => 'chat_message_stars',
-    ],
+🆚 Comparison
+Feature	This Package	Typical Chat Packages
+Realtime optional	✅	❌ forced
+Mobile-first	✅	❌
+No UI	✅	❌
+Extensible	✅	⚠️
+Laravel-native	✅	⚠️
+🛣️ Roadmap
 
-    'broadcast' => [
-        'enabled' => true,
-        'driver'  => 'pusher', // or websocket / none
-    ],
-];
+⏳ Attachments
 
-🧪 Stability Promise
+⏳ Message reactions
 
-Semantic versioning
+⏳ Conversation archiving
 
-No breaking changes without major release
+⏳ Facade API (Chat::send())
 
-Clean upgrade path
+⏳ Rate limiting
 
-Open roadmap
+⏳ Moderation hooks
 
-🛣 Roadmap
+👤 Author
 
-🔜 WebSocket driver toggle
-
-🔜 Attachments
-
-🔜 Message reactions
-
-🔜 Admin reassignment
-
-🔜 Chat facade API
-
-🔜 AI & bot hooks
-
-❤️ Contributing
-
-Contributions are welcome.
-
-Issues
-
-Feature requests
-
-Pull requests
-
-Documentation improvements
-
-📄 License
-
-MIT License
-
-⭐ Final Note
-
-This package is not a chat UI.
-It is a chat engine.
-
-Build whatever you want on top of it.
+Andrew Rafat
+📧 andrewrafat91@gmail.com
