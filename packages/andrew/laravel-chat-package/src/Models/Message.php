@@ -3,6 +3,7 @@
 namespace Andrew\ChatPackage\Models;
 
 use Andrew\ChatPackage\Events\MessageSent;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -53,4 +54,8 @@ class Message extends Model
     {
         return $this->stars();
     }
+    public function sender()
+{
+    return $this->belongsTo(User::class, 'sender_id');
+}
 }
