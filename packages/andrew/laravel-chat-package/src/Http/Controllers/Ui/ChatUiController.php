@@ -5,6 +5,7 @@ namespace Andrew\ChatPackage\Http\Controllers\Ui;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Andrew\ChatPackage\Models\Conversation;
+use App\Models\User;
 
 class ChatUiController extends Controller
 {
@@ -25,10 +26,11 @@ class ChatUiController extends Controller
             ])
             ->latest('updated_at')
             ->get();
-
+                $users=User::all();
         return view('chat::chat.index',  [
             'conversations' => $conversations,
             'activeChat'    => null,
+            'users'=>$users,
         ]);
     }
 
@@ -60,7 +62,7 @@ class ChatUiController extends Controller
                 'messages.reads',
             ])
             ->firstOrFail();
-
+            
 
         return view('chat::chat.conversation', [
             'conversations' => $conversations,

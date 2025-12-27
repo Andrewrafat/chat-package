@@ -1,0 +1,340 @@
+/* ================= RESET ================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    background: #f0f2f5;
+}
+
+/* ================= APP LAYOUT ================= */
+.chat-app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ================= SIDEBAR ================= */
+.chat-sidebar {
+    width: 340px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    padding: 15px;
+    background: #075e54;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* ================= CHAT LIST ITEM ================= */
+.chat-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    text-decoration: none;
+    color: #000;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.chat-item:hover {
+    background: #f5f6f6;
+}
+
+.chat-item.active {
+    background: #e9edef;
+}
+
+/* ================= AVATAR ================= */
+.chat-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #cfd8dc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* ================= CHAT INFO ================= */
+.chat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-title {
+    font-weight: 600;
+}
+
+.chat-last {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: #999;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ================= CONTENT ================= */
+.chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* ================= HEADER ================= */
+.chat-header {
+    padding: 15px;
+    background: #075e54;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* ================= MESSAGES ================= */
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    background: #e5ddd5;
+    overflow-y: auto;
+}
+
+/* ================= MESSAGE ROW ================= */
+.message-row {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.message-row.me {
+    justify-content: flex-end;
+}
+
+.message-row.other {
+    justify-content: flex-start;
+}
+
+/* ================= MESSAGE BUBBLE ================= */
+.message-bubble {
+    max-width: 60%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.message-bubble.me {
+    background: #dcf8c6;
+    border-top-right-radius: 0;
+}
+
+.message-bubble.other {
+    background: #fff;
+    border-top-left-radius: 0;
+}
+
+/* ================= SENDER ================= */
+.message-sender {
+    font-size: 12px;
+    font-weight: bold;
+    color: #075e54;
+    margin-bottom: 4px;
+}
+
+/* ================= FOOTER ================= */
+.message-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #666;
+}
+
+/* ================= MESSAGE STATUS ================= */
+.message-status {
+    font-size: 12px;
+    color: #777;
+}
+
+.message-status.read {
+    color: #34b7f1; /* WhatsApp blue */
+}
+
+/* ================= ATTACHMENTS ================= */
+.message-attachments {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.message-attachments img {
+    max-width: 180px;
+    border-radius: 8px;
+}
+
+.message-attachments a {
+    font-size: 13px;
+    color: #075e54;
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.message-attachments a:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* ================= FOOTER INPUT ================= */
+.chat-footer {
+    padding: 10px;
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-footer form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.chat-footer input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+}
+
+.chat-footer button {
+    background: #075e54;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    padding: 0 18px;
+    cursor: pointer;
+}
+
+.attach-btn {
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* ================= ATTACHMENT PREVIEW ================= */
+.attachment-preview {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+    display: none;
+    gap: 10px;
+    flex-wrap: wrap;
+    border: 1px solid #ddd;
+}
+
+.image-preview {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    max-width: 220px;
+}
+
+.preview-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.file-preview .preview-remove {
+    position: static;
+    background: none;
+    color: #888;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+    .chat-sidebar {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+    }
+}
+
+
+
+
+/* index */
+
+.is-hidden {
+    display: none !important;
+}
+
+.chat-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background: #075e54;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #eee;
+}
+

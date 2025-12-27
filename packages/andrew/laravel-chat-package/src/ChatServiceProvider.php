@@ -127,20 +127,12 @@ class ChatServiceProvider extends ServiceProvider
                 'chat'
             );
 
-            // Publish Blade views
+            // Publish Blade views and assets
             $this->publishes([
                 __DIR__ . '/../resources/views' => resource_path('views/vendor/chat'),
             ], 'chat-ui');
 
-            // Publish JS assets
-            $this->publishes([
-                __DIR__ . '/../resources/js' => resource_path('js/chat'),
-            ], 'chat-ui-assets');
-
-            // Publish CSS assets
-            $this->publishes([
-                __DIR__ . '/../resources/css' => resource_path('css/chat'),
-            ], 'chat-ui-assets');
+        
         }
 
         /*

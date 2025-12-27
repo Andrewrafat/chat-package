@@ -57,7 +57,7 @@ class MessageService
         // 5️⃣ Handle attachments (if any)
         // --------------------------------------------------
         $attachmentsPayload = [];
-        
+
         /** @var UploadedFile $file */
         foreach ($attachments as $file) {
 
@@ -102,13 +102,29 @@ class MessageService
         // --------------------------------------------------
         // 7️⃣ Optional realtime broadcast (driver-agnostic)
         // --------------------------------------------------
-        Broadcast::dispatch(
-            new MessageSent(
-                chatKey: $conversation->chat_key,
-                message: $payload
-            )
-        );
+        $message->load(['sender', 'attachments']); // حسب موديلاتك
 
+        Broadcast::dispatch(new MessageSent(
+            chatKey: $conversation->chat_key,
+            message: [
+                'id' => $message->id,
+                'sender_id' => $message->sender_id,
+                'sender' => [
+                    'id' => $message->sender?->id,
+                    'name' => $message->sender?->name,
+                ],
+                'content' => $message->content,
+                'created_at_formatted' => optional($message->created_at)->format('H:i'),
+                'attachments' => collect($message->attachments ?? [])->map(function ($a) {
+                    return [
+                        'name' => $a->name ?? null,
+                        'mime' => $a->mime_type ?? null,
+                        // مهم: url جاهز للاستخدام في الـ JS
+                        'url'  => isset($a->path) ? asset('storage/' . $a->path) : ($a->url ?? null),
+                    ];
+                })->values()->toArray(),
+            ]
+        ));
         return $payload;
     }
 

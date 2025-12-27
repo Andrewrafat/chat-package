@@ -2,9 +2,7 @@
 
 {{-- ================= SIDEBAR ================= --}}
 @section('sidebar')
-    <div class="sidebar-header">
-        Andrew Chat
-    </div>
+    <div class="sidebar-header">Andrew Chat</div>
 
     @foreach ($conversations as $chat)
         <a href="{{ url('/chat/' . $chat->chat_key) }}"
@@ -35,35 +33,35 @@
 @section('content')
     {{-- HEADER --}}
     <div class="chat-header">
-        {{ $activeChat->title ?? 'Conversation' }}
+        <button class="chat-back-btn" id="chatBackBtn">←</button>
+        <span class="chat-title-text">
+            {{ $activeChat->title ?? 'Conversation' }}
+        </span>
     </div>
 
     {{-- MESSAGES --}}
-    <div class="chat-messages">
+    <div class="chat-messages" id="chatMessages">
 
         @foreach ($activeChat->messages()->oldest()->get() as $message)
             @php
-                $authId = 1; // مؤقتًا – بعدين نخليه auth()->id()
+                $authId = auth()->id(); // ✅ مهم
                 $isMe = $message->sender_id === $authId;
 
-                // عدد المشاركين غيري
                 $participantsCount = $activeChat->participants->where('user_id', '!=', $authId)->count();
 
-                // اللي استلموا الرسالة (records موجودة)
                 $deliveredCount = $message->reads->where('user_id', '!=', $authId)->count();
 
-                // اللي قرا الرسالة
                 $readCount = $message->reads->whereNotNull('read_at')->where('user_id', '!=', $authId)->count();
 
-                // تحديد الحالة
                 $status = '';
+
                 if ($isMe) {
                     if ($participantsCount > 0 && $readCount === $participantsCount) {
-                        $status = 'read'; // ✓✓ أزرق
+                        $status = 'read';
                     } elseif ($participantsCount > 0 && $deliveredCount === $participantsCount) {
-                        $status = 'delivered'; // ✓✓ رمادي
+                        $status = 'delivered';
                     } else {
-                        $status = 'sent'; // ✓
+                        $status = 'sent';
                     }
                 }
             @endphp
@@ -71,17 +69,34 @@
             <div class="message-row {{ $isMe ? 'me' : 'other' }}">
                 <div class="message-bubble {{ $isMe ? 'me' : 'other' }}">
 
-                    {{-- الاسم --}}
+                    {{-- Sender --}}
                     <div class="message-sender">
                         {{ $isMe ? 'You' : $message->sender->name }}
                     </div>
 
-                    {{-- المحتوى --}}
-                    <div class="message-text">
-                        {{ $message->content }}
-                    </div>
+                    {{-- Content --}}
+                    @if ($message->content)
+                        <div class="message-text">
+                            {{ $message->content }}
+                        </div>
+                    @endif
 
-                    {{-- الوقت + الحالة --}}
+                    {{-- Attachments --}}
+                    @if ($message->attachments && count($message->attachments))
+                        <div class="message-attachments">
+                            @foreach ($message->attachments as $file)
+                                @if (str_starts_with($file->mime_type, 'image/'))
+                                    <img src="{{ asset('storage/' . $file->path) }}">
+                                @else
+                                    <a href="{{ asset('storage/' . $file->path) }}" target="_blank">
+                                        📎 {{ $file->name }}
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Footer --}}
                     <div class="message-footer">
                         <span class="message-time">
                             {{ $message->created_at->format('H:i') }}
@@ -89,13 +104,7 @@
 
                         @if ($isMe)
                             <span class="message-status {{ $status }}">
-                                @if ($status === 'sent')
-                                    ✓
-                                @elseif($status === 'delivered')
-                                    ✓✓
-                                @elseif($status === 'read')
-                                    ✓✓
-                                @endif
+                                {{ $status === 'sent' ? '✓' : '✓✓' }}
                             </span>
                         @endif
                     </div>
@@ -103,151 +112,37 @@
                 </div>
             </div>
         @endforeach
+    </div>
 
-
+    {{-- Typing Indicator --}}
+    <div class="typing-indicator" id="typingIndicator" style="display:none;">
+        <span id="typingUserName"></span> is typing...
     </div>
 
     {{-- FOOTER --}}
     <div class="chat-footer">
-        <form id="send-message-form">
+
+        <div class="attachment-preview"></div>
+
+        <form id="send-message-form" enctype="multipart/form-data">
             <input type="hidden" name="chat_key" value="{{ $activeChat->chat_key }}">
+
+            <label class="attach-btn">
+                📎
+                <input type="file" name="attachments[]" multiple hidden>
+            </label>
 
             <input type="text" name="content" placeholder="Type a message..." autocomplete="off">
 
             <button type="submit">➤</button>
         </form>
     </div>
+
+    {{-- GLOBAL JS DATA --}}
+    <script>
+        // window.CURRENT_USER_ID = {{ auth()->id() }};
+        window.CURRENT_USER_ID = 1;
+
+        window.CHAT_KEY = "{{ $activeChat->chat_key }}";
+    </script>
 @endsection
-
-
-{{-- ================= STYLES ================= --}}
-<style>
-    .chat-header {
-        padding: 15px;
-        background: #075e54;
-        color: #fff;
-        font-weight: bold;
-    }
-
-    .chat-messages {
-        flex: 1;
-        padding: 20px;
-        background: #e5ddd5;
-        overflow-y: auto;
-    }
-
-    /* ROW */
-    .message-row {
-        display: flex;
-        margin-bottom: 12px;
-    }
-
-    .message-row.me {
-        justify-content: flex-end;
-    }
-
-    .message-row.other {
-        justify-content: flex-start;
-    }
-
-    /* BUBBLE */
-    .message-bubble {
-        max-width: 60%;
-        padding: 10px 12px;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .message-bubble.me {
-        background: #dcf8c6;
-        border-top-right-radius: 0;
-    }
-
-    .message-bubble.other {
-        background: #fff;
-        border-top-left-radius: 0;
-    }
-
-    /* NAME */
-    .message-sender {
-        font-size: 12px;
-        font-weight: bold;
-        color: #075e54;
-        margin-bottom: 4px;
-    }
-
-    /* TIME */
-    .message-time {
-        text-align: right;
-        font-size: 11px;
-        color: #666;
-        margin-top: 4px;
-    }
-
-    /* FOOTER */
-    .chat-footer {
-        padding: 10px;
-        background: #f0f0f0;
-    }
-
-    .chat-footer form {
-        display: flex;
-        gap: 8px;
-    }
-
-    .chat-footer input {
-        flex: 1;
-        padding: 10px;
-        border-radius: 20px;
-        border: 1px solid #ccc;
-    }
-
-    .chat-footer button {
-        background: #075e54;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        padding: 0 18px;
-        cursor: pointer;
-    }
-
-    .message-footer {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 6px;
-        margin-top: 4px;
-    }
-
-    .message-status {
-        font-size: 12px;
-        color: #777;
-    }
-
-    .message-status.read {
-        color: #34b7f1;
-        /* أزرق واتساب */
-    }
-</style>
-
-
-{{-- ================= SCRIPT ================= --}}
-<script>
-    document.getElementById('send-message-form')
-        ?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(e.target);
-
-            await fetch("{{ url('/chat/messages') }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-
-            location.reload();
-        });
-</script>
