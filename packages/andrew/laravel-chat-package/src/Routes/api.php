@@ -47,7 +47,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::post(
     '/chat/conversations/{chat_key}/typing',
     [ConversationTypingController::class, 'store']
-  );
+  )->name('chat.conversations.typing');
 
   /*
     |--------------------------------------------------------------------------

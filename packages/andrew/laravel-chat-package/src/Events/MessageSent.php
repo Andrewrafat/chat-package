@@ -29,7 +29,8 @@ class MessageSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'data' => $this->message,
+            'chat_key' => $this->chatKey,
+            'message'  => $this->message,
         ];
     }
 }

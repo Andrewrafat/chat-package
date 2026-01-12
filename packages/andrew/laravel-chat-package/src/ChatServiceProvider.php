@@ -4,9 +4,21 @@ namespace Andrew\ChatPackage;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Broadcast;
-use Andrew\ChatPackage\Models\Conversation;
+use Illuminate\Support\Facades\Route;
 
-// Services
+/*
+|--------------------------------------------------------------------------
+| Models
+|--------------------------------------------------------------------------
+*/
+use Andrew\ChatPackage\Models\Conversation;
+use Andrew\ChatPackage\Models\Message;
+
+/*
+|--------------------------------------------------------------------------
+| Services
+|--------------------------------------------------------------------------
+*/
 use Andrew\ChatPackage\Services\MessageService;
 use Andrew\ChatPackage\Services\ConversationCreateService;
 use Andrew\ChatPackage\Services\ConversationQueryService;
@@ -15,19 +27,29 @@ use Andrew\ChatPackage\Services\ConversationLeaveService;
 use Andrew\ChatPackage\Services\ConversationReadService;
 use Andrew\ChatPackage\Services\ConversationTypingService;
 use Andrew\ChatPackage\Services\StarMessageService;
-use Illuminate\Support\Facades\Route;
-use Andrew\ChatPackage\Models\Message;
 
 class ChatServiceProvider extends ServiceProvider
 {
-    public function register()
+    /**
+     * Register bindings & merge config
+     */
+    public function register(): void
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Merge Package Configuration
+        |--------------------------------------------------------------------------
+        */
         $this->mergeConfigFrom(
             __DIR__ . '/../config/chat.php',
             'chat'
         );
 
-        // ✅ Explicit service bindings (package best practice)
+        /*
+        |--------------------------------------------------------------------------
+        | Bind Services (API / Domain Layer)
+        |--------------------------------------------------------------------------
+        */
         $this->app->singleton(MessageService::class);
         $this->app->singleton(ConversationCreateService::class);
         $this->app->singleton(ConversationQueryService::class);
@@ -38,42 +60,117 @@ class ChatServiceProvider extends ServiceProvider
         $this->app->singleton(StarMessageService::class);
     }
 
-    public function boot()
+    /**
+     * Boot package features
+     */
+    public function boot(): void
     {
-        // ✅ REGISTER MODEL BINDING FIRST
-        \Illuminate\Support\Facades\Route::model(
-            'message',
-            \Andrew\ChatPackage\Models\Message::class
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | Route Model Binding (MUST be before routes)
+        |--------------------------------------------------------------------------
+        */
+        Route::model('message', Message::class);
 
-        // Publish config
+        /*
+        |--------------------------------------------------------------------------
+        | Publish Configuration
+        |--------------------------------------------------------------------------
+        */
         $this->publishes([
             __DIR__ . '/../config/chat.php' => config_path('chat.php'),
         ], 'chat-config');
 
-        // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        /*
+        |--------------------------------------------------------------------------
+        | Publish Migrations (Optional)
+        |--------------------------------------------------------------------------
+        */
+        $this->publishes([
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
+        ], 'chat-migrations');
 
-        // Load routes (AFTER binding)
-        $this->loadRoutesFrom(__DIR__ . '/Routes/api.php');
+        /*
+        |--------------------------------------------------------------------------
+        | Load Migrations Automatically
+        |--------------------------------------------------------------------------
+        */
+        $this->loadMigrationsFrom(
+            __DIR__ . '/../database/migrations'
+        );
 
-        // Broadcast channels
+        /*
+        |--------------------------------------------------------------------------
+        | Load API Routes (Always Enabled)
+        |--------------------------------------------------------------------------
+        */
+        $this->loadRoutesFrom(
+            __DIR__ . '/Routes/api.php'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Optional UI Layer (Blade + Assets)
+        |--------------------------------------------------------------------------
+        | Enabled only if developer wants UI
+        */
+        if (config('chat.ui.enabled', false)) {
+
+            // Load UI routes
+            $this->loadRoutesFrom(
+                __DIR__ . '/Routes/ui.php'
+            );
+
+            // Load Blade views namespace
+            $this->loadViewsFrom(
+                __DIR__ . '/../resources/views',
+                'chat'
+            );
+
+            // Publish Blade views and assets
+            $this->publishes([
+                __DIR__ . '/../resources/views' => resource_path('views/vendor/chat'),
+            ], 'chat-ui');
+
+        
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Register Realtime Broadcasting Channels
+        |--------------------------------------------------------------------------
+        */
         $this->registerBroadcastChannels();
     }
 
+    /**
+     * Register private broadcast channels
+     */
     protected function registerBroadcastChannels(): void
     {
-        // Inbox / metadata events
+        /*
+        |--------------------------------------------------------------------------
+        | User Inbox Channel (Sidebar updates)
+        |--------------------------------------------------------------------------
+        */
         Broadcast::channel('chat.user.{userId}', function ($user, $userId) {
             return (int) $user->id === (int) $userId;
         });
 
-        // Conversation stream (messages, typing, membership)
+        /*
+        |--------------------------------------------------------------------------
+        | Conversation Stream Channel
+        |--------------------------------------------------------------------------
+        | Used for messages, typing, stars, invites, etc.
+        */
         Broadcast::channel('chat.{chatKey}', function ($user, $chatKey) {
-
             return Conversation::withoutGlobalScopes()
                 ->where('chat_key', $chatKey)
-                ->whereHas('participants', fn($q) => $q->where('user_id', $user->id))
+                ->whereHas(
+                    'participants',
+                    fn($q) =>
+                    $q->where('user_id', $user->id)
+                )
                 ->exists();
         });
     }
